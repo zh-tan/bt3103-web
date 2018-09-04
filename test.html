@@ -1,0 +1,65 @@
+<html>
+
+<head>
+	<title>Plain HTML Sandbox</title>
+</head>
+
+<body>
+  <div id="app">
+	  Counter {{counter}}
+	  <button v-on:click="increment()">Increment</button>
+	  <button v-on:click="reset()">Reset</button>
+
+  </div>
+
+  <script src="https://unpkg.com/vue"></script>
+
+  <script>
+
+    var app = new Vue({
+      el:"#app",
+      data: {
+       counter: 0, 
+       databaseUrl: ' https://bt3103-rocks-7e378.firebaseio.com/counter.json',
+      },
+	  mounted: function () { //Will start at zero if you don't update on init
+        this.update();
+      },
+    methods:{
+        increment: function(){
+          this.counter++
+          this.setRemoteCounter(this.counter)
+        },
+        reset: function(){
+          // Post to the counter to set it to zero. 
+          this.counter = 0
+		      this.setRemoteCounter(this.counter)          
+        },
+				 setRemoteCounter: async function(newVal){ 
+           // Post to the counter to set it to zero. 
+           let res = await fetch(this.databaseUrl, { 
+              method:'put', 
+              body: JSON.stringify({'counter':newVal})
+				    }) 
+
+          let theJson = await res.json()
+          console.log(theJson)
+
+         },
+        update: async function() {
+          let res = await fetch(this.databaseUrl) 
+          let theJson = await res.json()
+          console.log("Updated remote counter",theJson)
+		      if(theJson && theJson.counter) {
+            console.log("here")
+              this.counter = theJson.counter
+          }
+			      
+        }
+      }
+    })
+
+  </script>
+</body>
+
+</html>
